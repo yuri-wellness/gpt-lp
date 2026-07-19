@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="止まりがちな商品づくりを、販売まで進める仕組みに。思いついた商品を、その熱量のまま販売まで。">
+  <title>販売は、順番で決まる。</title>
+  <style>
+    /* ============================================================
+       リセット
+    ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ============================================================
+       デザイントークン
+    ============================================================ */
+    :root {
+      --text:        #1a1a1a;
+      --text-mid:    #4a4a4a;
+      --text-muted:  #6a6a6a;
+      --text-faint:  #999999;
+      --accent:      #2E9E7A;
+      --accent-dim:  rgba(46,158,122,0.12);
+      --border:      rgba(0,0,0,0.08);
+      --border-mid:  rgba(0,0,0,0.13);
+      --bg:          #ffffff;
+      --bg-warm:     #fafaf8;
+      --max-w:       1120px;
+      --col-w:       680px;
+
+      /* spacing scale (8px base) */
+      --sp-xs:  8px;
+      --sp-sm:  16px;
+      --sp-md:  32px;
+      --sp-lg:  64px;
+      --sp-xl:  120px;
+      --sp-2xl: 160px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+                   "Noto Sans JP", "Yu Gothic", YuGothic, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.9;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* ============================================================
+       レイアウト共通
+    ============================================================ */
+    .container {
+      width: min(100%, var(--max-w));
+      margin-inline: auto;
+      padding-inline: clamp(24px, 5.5vw, 72px);
+    }
+
+    .col {
+      max-width: var(--col-w);
+    }
+
+    .col-center {
+      max-width: var(--col-w);
+      margin-inline: auto;
+    }
+
+    /* ============================================================
+       タイポグラフィ
+    ============================================================ */
+    .eyebrow {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: var(--sp-md);
+    }
+
+    .headline {
+      font-size: clamp(1.375rem, 5.5vw, 3.8rem);
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    /* 文節折り返し制御 */
+    .ub {
+      display: inline-block;
+    }
+
+    .headline-lg {
+      font-size: clamp(2.4rem, 7vw, 5.2rem);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .subhead {
+      font-size: clamp(1rem, 2.2vw, 1.18rem);
+      font-weight: 400;
+      line-height: 2.0;
+      color: var(--text-muted);
+    }
+
+    .body-text {
+      font-size: clamp(0.96rem, 2vw, 1.06rem);
+      line-height: 2.0;
+      color: var(--text-mid);
+    }
+
+    .body-text + .body-text,
+    p + p {
+      margin-top: 1.4em;
+    }
+
+    .accent-word {
+      color: var(--accent);
+    }
+
+    .accent-line {
+      text-decoration: underline;
+      text-decoration-color: var(--accent);
+      text-underline-offset: 4px;
+      text-decoration-thickness: 1.5px;
+    }
+
+    /* ============================================================
+       セクション共通
+    ============================================================ */
+    section {
+      padding-block: var(--sp-xl);
+    }
+
+    section.section-warm {
+      background: var(--bg-warm);
+    }
+
+    section + section {
+      border-top: 1px solid var(--border);
+    }
+
+    /* ============================================================
+       フェードイン
+    ============================================================ */
+    .fi {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+
+    .fi.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .fi-delay-1 { transition-delay: 0.1s; }
+    .fi-delay-2 { transition-delay: 0.2s; }
+    .fi-delay-3 { transition-delay: 0.32s; }
+
+    /* ============================================================
+       CTAボタン
+    ============================================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 58px;
+      padding: 16px 40px;
+      background: var(--text);
+      color: #fff;
+      font-size: clamp(0.95rem, 2vw, 1.05rem);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease, transform 0.18s ease, box-shadow 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      background: #2a2a2a;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .btn-arrow {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       SECTION 1: ファーストビュー（現行そのまま流用）
+    ============================================================ */
+    .hero {
+      padding: 0;
+      border-bottom: 1px solid var(--border);
+      background: #fffdf8;
+    }
+
+    .hero-art {
+      position: relative;
+      width: min(100%, 1402px);
+      margin-inline: auto;
+      background: #fffdf8;
+    }
+
+    .hero-art img {
+      width: 100%;
+      display: block;
+    }
+
+    .hero-art-cta {
+      position: absolute;
+      left: 3.05%;
+      top: 65.95%;
+      width: 41.9%;
+      height: 8.55%;
+      border-radius: 999px;
+      text-indent: -9999px;
+      overflow: hidden;
+    }
+
+    .hero-art-cta:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 4px;
+    }
+
+    @media (max-width: 640px) {
+      /* スマホは上に少し余白を足して、画像が画面の縁にくっつかないように */
+      .hero {
+        padding-top: 12px;
+      }
+      /* スマホでも元画像(hero.jpg)を使うので、透明ボタンはPC用の座標(=画像基準%)のまま。上書きしない */
+    }
+
+    /* スマホ専用: ノート(順番の図)を独立枠で表示。PCでは非表示 */
+    .mobile-flow {
+      display: none;
+    }
+    @media (max-width: 640px) {
+      .mobile-flow {
+        display: block;
+        padding: clamp(28px, 8vw, 44px) clamp(24px, 5.5vw, 72px) 0;
+      }
+      .mobile-flow-label {
+        font-size: 0.82rem;
+        letter-spacing: 0.04em;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+        text-align: center;
+      }
+      .mobile-flow img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-radius: 12px;
+      }
+    }
+
+    /* ============================================================
+       SECTION 2: 問題提起
+    ============================================================ */
+    .problem-list {
+      list-style: none;
+      max-width: var(--col-w);
+      margin-top: clamp(48px, 7vw, 72px);
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-md);
+    }
+
+    .problem-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .problem-item .step-line {
+      display: block;
+      flex-shrink: 0;
+      width: 1px;
+      min-height: 1.6em;
+      align-self: stretch;
+      background: var(--border-mid);
+      margin-top: 4px;
+    }
+
+    .problem-item-text {
+      font-size: clamp(1rem, 2vw, 1.08rem);
+      color: var(--text-mid);
+      line-height: 1.85;
+      padding-block: 4px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .problem-punchline {
+      max-width: var(--col-w);
+      margin-top: clamp(56px, 8vw, 88px);
+      padding-left: 24px;
+      border-left: 2px solid var(--text);
+      font-size: clamp(1.15rem, 2.5vw, 1.5rem);
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.7;
+      letter-spacing: -0.01em;
+    }
+
+    /* ============================================================
+       SECTION 3: 転換（メッセージ）
+    ============================================================ */
+    .pivot-body {
+      max-width: var(--col-w);
+      margin-top: clamp(48px, 7vw, 64px);
+    }
+
+    .pivot-ratio {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      margin-top: clamp(48px, 6vw, 64px);
+      margin-bottom: clamp(48px, 6vw, 64px);
+      max-width: 540px;
+    }
+
+    .pivot-block {
+      flex: 1;
+      padding: clamp(28px, 4vw, 40px) clamp(24px, 3.5vw, 36px);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pivot-block.is-before {
+      background: var(--bg-warm);
+      border: 1px solid var(--border);
+      border-right: none;
+    }
+
+    .pivot-block.is-after {
+      background: var(--text);
+      border: 1px solid var(--text);
+    }
+
+    .pivot-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .pivot-block.is-before .pivot-label { color: var(--text-faint); }
+    .pivot-block.is-after  .pivot-label { color: rgba(255,255,255,0.45); }
+
+    .pivot-number {
+      font-size: clamp(3.2rem, 9vw, 5.4rem);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .pivot-block.is-before .pivot-number { color: var(--text-muted); }
+    .pivot-block.is-after  .pivot-number { color: #fff; }
+
+    .pivot-desc {
+      font-size: 0.88rem;
+      line-height: 1.6;
+    }
+
+    .pivot-block.is-before .pivot-desc { color: var(--text-muted); }
+    .pivot-block.is-after  .pivot-desc { color: rgba(255,255,255,0.7); }
+
+    .pivot-note {
+      font-size: 0.82rem;
+      line-height: 1.75;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .pivot-tagline {
+      margin-top: clamp(56px, 8vw, 80px);
+      font-size: clamp(2.2rem, 6vw, 4.8rem);
+      font-weight: 700;
+      line-height: 1.18;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    /* ============================================================
+       SECTION 4: 仕組み（ステップ）
+    ============================================================ */
+    .steps {
+      margin-top: clamp(56px, 8vw, 80px);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      max-width: var(--col-w);
+    }
+
+    .step-item {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 0 24px;
+      padding-bottom: clamp(36px, 5vw, 52px);
+      position: relative;
+    }
+
+    .step-item:not(:last-child) .step-line {
+      position: absolute;
+      left: 27px;
+      top: 20px;
+      bottom: 0;
+      width: 1px;
+      background: var(--border);
+    }
+
+    .step-num-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 2px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--text);
+      flex-shrink: 0;
+    }
+
+    .step-dot.is-result {
+      background: var(--accent);
+    }
+
+    .step-content {
+      padding-bottom: 0;
+    }
+
+    .step-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: 8px;
+    }
+
+    .step-title {
+      font-size: clamp(1.05rem, 2.3vw, 1.25rem);
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.45;
+      margin-bottom: 10px;
+    }
+
+    .step-body {
+      font-size: clamp(0.9rem, 1.8vw, 0.98rem);
+      color: var(--text-muted);
+      line-height: 1.85;
+    }
+
+    /* ============================================================
+       SECTION 5: ビフォーアフター
+    ============================================================ */
+    .ba-list {
+      list-style: none;
+      max-width: var(--col-w);
+      margin-top: clamp(56px, 8vw, 80px);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .ba-item {
+      padding-block: clamp(24px, 3.5vw, 32px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .ba-before {
+      font-size: clamp(0.93rem, 1.9vw, 1rem);
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: 10px;
+    }
+
+    .ba-arrow {
+      display: inline-block;
+      width: 16px;
+      height: 1px;
+      background: var(--accent);
+      position: relative;
+      vertical-align: middle;
+      margin: 0 8px;
+    }
+
+    .ba-arrow::after {
+      content: '';
+      position: absolute;
+      right: -1px;
+      top: 50%;
+      transform: translateY(-50%);
+      border-left: 5px solid var(--accent);
+      border-top: 3px solid transparent;
+      border-bottom: 3px solid transparent;
+    }
+
+    .ba-after {
+      font-size: clamp(1rem, 2vw, 1.08rem);
+      color: var(--text);
+      font-weight: 600;
+      line-height: 1.65;
+    }
+
+    /* ============================================================
+       SECTION 6: 実績ブロック
+    ============================================================ */
+    .evidence-intro {
+      max-width: var(--col-w);
+      margin-top: clamp(48px, 7vw, 64px);
+    }
+
+    .evidence-list {
+      list-style: none;
+      max-width: var(--col-w);
+      margin-top: var(--sp-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--sp-sm);
+    }
+
+    .evidence-item {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      font-size: clamp(0.93rem, 1.9vw, 1rem);
+      color: var(--text-mid);
+      line-height: 1.75;
+    }
+
+    .evidence-item::before {
+      content: '';
+      display: block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      position: relative;
+      top: -2px;
+    }
+
+    .evidence-highlight {
+      text-decoration: underline;
+      text-decoration-color: rgba(46,158,122,0.4);
+      text-underline-offset: 4px;
+      text-decoration-thickness: 1.5px;
+    }
+
+    .evidence-note {
+      max-width: var(--col-w);
+      margin-top: clamp(32px, 5vw, 48px);
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      line-height: 1.85;
+    }
+
+    /* ============================================================
+       SECTION 7: 3つのGPT
+    ============================================================ */
+    .gpt-list {
+      max-width: var(--col-w);
+      margin-top: clamp(56px, 8vw, 80px);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .gpt-item {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 0 24px;
+      padding-block: clamp(28px, 4vw, 40px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .gpt-num-col {
+      padding-top: 4px;
+    }
+
+    .gpt-num-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .gpt-content {}
+
+    .gpt-title {
+      font-size: clamp(1.05rem, 2.3vw, 1.22rem);
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.4;
+      margin-bottom: 10px;
+    }
+
+    .gpt-body {
+      font-size: clamp(0.9rem, 1.8vw, 0.97rem);
+      color: var(--text-muted);
+      line-height: 1.85;
+    }
+
+    .gpt-flow {
+      max-width: var(--col-w);
+      margin-top: clamp(40px, 6vw, 56px);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .gpt-flow-node {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+      padding: 6px 14px;
+      border: 1px solid var(--border-mid);
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .gpt-flow-sep {
+      color: var(--text-faint);
+      font-size: 0.9rem;
+    }
+
+    .gpt-flow-node.is-result {
+      background: var(--text);
+      color: #fff;
+      border-color: var(--text);
+    }
+
+    /* ============================================================
+       SECTION 8: 価格・オファー
+    ============================================================ */
+    .offer-box {
+      max-width: 640px;
+      margin-inline: auto;
+      margin-top: clamp(56px, 8vw, 80px);
+    }
+
+    .offer-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-bottom: var(--sp-md);
+    }
+
+    .offer-items {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-bottom: clamp(40px, 6vw, 56px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .offer-item {
+      display: flex;
+      align-items: baseline;
+      gap: 14px;
+      font-size: clamp(0.93rem, 1.9vw, 1rem);
+      color: var(--text-mid);
+      line-height: 1.7;
+    }
+
+    .offer-item::before {
+      content: '';
+      display: block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--text);
+      flex-shrink: 0;
+      position: relative;
+      top: -2px;
+    }
+
+    .offer-price-wrap {
+      padding-block: clamp(36px, 5vw, 52px);
+    }
+
+    .offer-price-original {
+      font-size: 0.9rem;
+      color: var(--text-faint);
+      text-decoration: line-through;
+      margin-bottom: 8px;
+    }
+
+    .offer-price {
+      font-size: clamp(3.4rem, 9vw, 5.6rem);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: var(--text);
+    }
+
+    .offer-price small {
+      font-size: 0.38em;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+
+    .offer-price-note {
+      margin-top: 12px;
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .offer-reason {
+      padding: clamp(20px, 3vw, 28px) clamp(20px, 3vw, 28px);
+      background: var(--bg-warm);
+      border: 1px solid var(--border);
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.95;
+      margin-block: clamp(28px, 4vw, 40px);
+    }
+
+    .offer-meta {
+      font-size: 0.82rem;
+      color: var(--text-faint);
+      line-height: 1.9;
+      margin-bottom: clamp(24px, 3.5vw, 36px);
+    }
+
+    .offer-cta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .offer-cta .btn {
+      min-width: 280px;
+    }
+
+    .offer-cta-note {
+      font-size: 0.8rem;
+      color: var(--text-faint);
+      line-height: 1.7;
+    }
+
+    /* ============================================================
+       ラストメッセージ
+    ============================================================ */
+    .last {
+      padding-block: clamp(120px, 18vw, 200px);
+      border-top: 1px solid var(--border);
+    }
+
+    .last-lead {
+      max-width: 560px;
+      margin-bottom: clamp(64px, 9vw, 96px);
+    }
+
+    .last-lead p {
+      font-size: clamp(0.96rem, 2vw, 1.08rem);
+      color: var(--text-muted);
+      line-height: 2.1;
+    }
+
+    .last-tagline {
+      font-size: clamp(2.8rem, 8.5vw, 6.4rem);
+      font-weight: 700;
+      line-height: 1.12;
+      letter-spacing: -0.025em;
+      color: var(--text);
+      display: block;
+      margin-bottom: clamp(64px, 9vw, 96px);
+    }
+
+    .last-cta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .last-cta .btn {
+      min-width: 280px;
+    }
+
+    .last-note {
+      font-size: 0.8rem;
+      color: var(--text-faint);
+      line-height: 1.75;
+    }
+
+    .line-consult {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-top: 8px;
+    }
+
+    .line-consult a {
+      color: var(--accent);
+      text-decoration: underline;
+      text-decoration-color: var(--accent);
+      text-underline-offset: 3px;
+      text-decoration-thickness: 1px;
+    }
+
+    .line-consult a:hover {
+      opacity: 0.75;
+    }
+
+    /* ============================================================
+       フッター
+    ============================================================ */
+    footer {
+      padding-block: 32px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-faint);
+    }
+
+    /* ============================================================
+       レスポンシブ
+    ============================================================ */
+    @media (max-width: 640px) {
+      :root {
+        --sp-xl:  80px;
+        --sp-2xl: 120px;
+      }
+
+      /* スマホでは<br>を非表示にして.ubの文節折り返しに任せる */
+      h2.headline br {
+        display: none;
+      }
+
+      .pivot-ratio {
+        flex-direction: column;
+      }
+
+      .pivot-block.is-before {
+        border-right: 1px solid var(--border);
+        border-bottom: none;
+      }
+
+      .btn {
+        width: 100%;
+        max-width: 360px;
+      }
+
+      .offer-cta .btn,
+      .last-cta .btn {
+        min-width: unset;
+        width: 100%;
+        max-width: 360px;
+      }
+
+      .offer-cta,
+      .last-cta {
+        align-items: stretch;
+      }
+
+      .gpt-flow {
+        gap: 6px;
+      }
+
+      .step-item {
+        grid-template-columns: 36px 1fr;
+        gap: 0 16px;
+      }
+
+      .step-item:not(:last-child) .step-line {
+        left: 17px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ============================================================
+       SECTION 1: ファーストビュー（現行から流用・変更なし）
+  ============================================================ -->
+  <section class="hero">
+    <div class="hero-art">
+      <img
+        src="hero.jpg"
+        alt="販売は、順番で決まる。商品設計からLP完成まで、販売につながる順番をAIで誰でも再現できます。"
+      >
+      <a
+        href="https://line.me/R/oaMessage/%40988woyza/?GPT%E7%94%B3%E3%81%97%E8%BE%BC%E3%81%BF"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="hero-art-cta"
+        aria-label="この順番で進める"
+      >この順番で進める</a>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       SECTION 2: 問題提起
+       「あなたの止まりに、名前をつける」
+  ============================================================ -->
+  <section id="s2">
+    <div class="container">
+      <p class="eyebrow fi">Problem</p>
+      <h2 class="headline fi fi-delay-1"><span class="ub">商品アイデアは</span><span class="ub">あるのに、</span><br><span class="ub">「ここから先」が</span><span class="ub">見えない。</span></h2>
+
+      <ul class="problem-list" aria-label="よくある止まりのパターン">
+        <li class="problem-item fi fi-delay-1">
+          <span class="step-line" aria-hidden="true"></span>
+          <span class="problem-item-text">LPに何を書けばいいかわからないまま、下書きフォルダだけが増えていく</span>
+        </li>
+        <li class="problem-item fi fi-delay-2">
+          <span class="step-line" aria-hidden="true"></span>
+          <span class="problem-item-text">「完成したら売ろう」と思って、気づいたら3ヶ月が経っていた</span>
+        </li>
+        <li class="problem-item fi fi-delay-3">
+          <span class="step-line" aria-hidden="true"></span>
+          <span class="problem-item-text">色々な教材を買ったけど、「自分の商品に当てはめる」ステップで毎回迷子になる</span>
+        </li>
+        <li class="problem-item fi">
+          <span class="step-line" aria-hidden="true"></span>
+          <span class="problem-item-text">一度は販売できたが、同じ流れを次の商品に使い回せていない</span>
+        </li>
+      </ul>
+
+      <div class="problem-punchline fi">
+        売れないのではなく、<br>販売までの順番が見えていない。
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       SECTION 3: 転換（メッセージ）
+       「完成を待つことをやめるだけ」
+  ============================================================ -->
+  <section id="s3" class="section-warm">
+    <div class="container">
+      <p class="eyebrow fi">Message</p>
+      <h2 class="headline fi fi-delay-1"><span class="ub">「完成したら」を、</span><br><span class="ub">やめるだけでいい。</span></h2>
+
+      <div class="pivot-body fi fi-delay-2">
+        <p class="body-text">商品が完全にできてから売ろうとするから、止まる。<br>この考え方をひとつ変えるだけで、動き始めます。</p>
+      </div>
+
+      <div class="pivot-ratio fi fi-delay-2" aria-label="完成を待つ100%から、80%で始めるへの転換">
+        <div class="pivot-block is-before">
+          <span class="pivot-label">Before</span>
+          <span class="pivot-number">100<span style="font-size:0.45em;font-weight:600;">%</span></span>
+          <span class="pivot-desc">完成を待ってから</span>
+        </div>
+        <div class="pivot-block is-after">
+          <span class="pivot-label">After</span>
+          <span class="pivot-number">80<span style="font-size:0.45em;font-weight:600;">%</span></span>
+          <span class="pivot-desc">この状態で販売を始める</span>
+          <span class="pivot-note">残り20%はお客さんの声が決める</span>
+        </div>
+      </div>
+
+      <p class="body-text col fi" style="margin-top:0;">
+        動かしながら仕上げる。<br>それが、売れている人たちがやっていることです。
+      </p>
+
+      <p class="pivot-tagline fi">
+        販売は、<br>順番で決まる。
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       SECTION 4: 仕組み（販売までの順番）
+       「次は何をする？が常に見えている」
+  ============================================================ -->
+  <section id="s4">
+    <div class="container">
+      <p class="eyebrow fi">How it works</p>
+      <h2 class="headline fi fi-delay-1"><span class="ub">販売までの順番は、</span><br><span class="ub">もう決まっています。</span></h2>
+
+      <p class="subhead col fi fi-delay-2" style="margin-top:24px;">
+        「次は何をすればいい？」が常に見えている状態をつくる。<br>迷わない、止まらない、のがこの設計の前提です。
+      </p>
+
+      <div class="steps fi" role="list">
+
+        <div class="step-item" role="listitem">
+          <div class="step-num-wrap">
+            <div class="step-dot"></div>
+            <div class="step-line" aria-hidden="true"></div>
+          </div>
+          <div class="step-content">
+            <p class="step-label">Step 01</p>
+            <h3 class="step-title">価値発掘・商品設計</h3>
+            <p class="step-body">「誰に・何を・どう売るか」の3つに答えるだけで、自分の商品の本当の売りが言葉になる。企画段階でぼんやりしていた価値が、ここで輪郭を持ち始めます。</p>
+          </div>
+        </div>
+
+        <div class="step-item" role="listitem">
+          <div class="step-num-wrap">
+            <div class="step-dot"></div>
+            <div class="step-line" aria-hidden="true"></div>
+          </div>
+          <div class="step-content">
+            <p class="step-label">Step 02</p>
+            <h3 class="step-title">ヘッダー・最初の一言を設計する</h3>
+            <p class="step-body">LPを書く前に「最初の一言」を決める。ここが固まると、ページ全体の言葉がぶれなくなる。逆にここがないまま書き始めると、何度書き直しても終わらない。</p>
+          </div>
+        </div>
+
+        <div class="step-item" role="listitem">
+          <div class="step-num-wrap">
+            <div class="step-dot"></div>
+            <div class="step-line" aria-hidden="true"></div>
+          </div>
+          <div class="step-content">
+            <p class="step-label">Step 03</p>
+            <h3 class="step-title">LP構築・販売ページを組み立てる</h3>
+            <p class="step-body">「何をどこに書くか」があらかじめ決まっているから、白紙のまま止まらずに進める。構成の迷いをゼロにして、最後まで一気に組み上げます。</p>
+          </div>
+        </div>
+
+        <div class="step-item" role="listitem">
+          <div class="step-num-wrap">
+            <div class="step-dot"></div>
+            <div class="step-line" aria-hidden="true"></div>
+          </div>
+          <div class="step-content">
+            <p class="step-label">Step 04</p>
+            <h3 class="step-title">AI実装・販売ページを動かす</h3>
+            <p class="step-body">用意された実装プロンプトをAIに渡すことで、コーディング経験ゼロでも販売ページが動く状態になる。このページ自体も、その方法で作っています。</p>
+          </div>
+        </div>
+
+        <div class="step-item" role="listitem">
+          <div class="step-num-wrap">
+            <div class="step-dot"></div>
+            <div class="step-line" aria-hidden="true"></div>
+          </div>
+          <div class="step-content">
+            <p class="step-label">Step 05</p>
+            <h3 class="step-title">80%で、販売を始める</h3>
+            <p class="step-body">完璧を待たない。この状態で出す——それがこの設計の前提です。動かしてから整えていく。それが止まらずに続けていくやり方です。</p>
+          </div>
+        </div>
+
+        <div class="step-item" role="listitem">
+          <div class="step-num-wrap">
+            <div class="step-dot is-result"></div>
+          </div>
+          <div class="step-content">
+            <p class="step-label" style="color:var(--accent);">Result</p>
+            <h3 class="step-title">「購入されました」から、次の商品へ</h3>
+            <p class="step-body">この流れは、次の商品でそのまま使い回せます。順番が身につくと、販売が繰り返せるようになる。一度ではなく、仕組みとして持ち続けるものです。</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       SECTION 5: ビフォーアフター
+       「この順番を踏んだとき、何が変わるか」
+  ============================================================ -->
+  <section id="s5" class="section-warm">
+    <div class="container">
+      <p class="eyebrow fi">After</p>
+      <h2 class="headline fi fi-delay-1"><span class="ub">この順番を</span><span class="ub">踏んだとき、</span><br><span class="ub">何が変わるか。</span></h2>
+
+      <ul class="ba-list fi fi-delay-2" aria-label="ビフォーアフター">
+        <li class="ba-item">
+          <p class="ba-before">「何から始めればいい？」と毎回止まっていた</p>
+          <p class="ba-after">「次はこれ」が常に見えていて、手が動き続ける</p>
+        </li>
+        <li class="ba-item">
+          <p class="ba-before">下書きフォルダだけが増えていた</p>
+          <p class="ba-after">LPが公開された状態になっている</p>
+        </li>
+        <li class="ba-item">
+          <p class="ba-before">「完成したら」を待ち続けていた</p>
+          <p class="ba-after">今ある状態で、販売が始まっている</p>
+        </li>
+        <li class="ba-item">
+          <p class="ba-before">「私の商品って、何が売りだろう」が霧の中だった</p>
+          <p class="ba-after">「あ、これが私の商品だったんだ」とわかる瞬間が来る</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       SECTION 6: 実績・証拠
+       「この順番を作った私自身の実例」
+  ============================================================ -->
+  <section id="s6">
+    <div class="container">
+      <p class="eyebrow fi">Evidence</p>
+      <h2 class="headline fi fi-delay-1"><span class="ub">この順番を</span><span class="ub">設計した</span><span class="ub">私自身の、</span><br><span class="ub">AIを使い始めて</span><span class="ub">3ヶ月の実例。</span></h2>
+
+      <p class="body-text col fi fi-delay-2" style="margin-top:24px;">
+        特別なスキルがあったわけではなく、<br>この順番どおりに進めただけです。
+      </p>
+
+      <ul class="evidence-list fi" aria-label="実績リスト">
+        <li class="evidence-item">AI秘書を自分で構築し、タスク管理と進捗記録が自動で回っている</li>
+        <li class="evidence-item">商品設計・ヘッダー設計・LP構築のGPTを3本自作（このセットの中身そのもの）</li>
+        <li class="evidence-item"><span class="evidence-highlight">このページ自体を、そのGPTとAIで制作（外注ゼロ）</span></li>
+        <li class="evidence-item">ブログ・noteの下書き作成をAIで自動化</li>
+        <li class="evidence-item">四柱推命の別事業でもLPを制作・公開</li>
+      </ul>
+
+      <p class="evidence-note fi">
+        「あ、私の商品ってこれだったんだ。」<br>
+        <span style="color:var(--text-muted);">この順番に沿って、価値発掘からLP構築まで進めていくと見えてくる言葉です。企画段階ではぼんやりしていた「本当の売り物」が、段階を踏んで言語化されていく。</span>
+      </p>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       SECTION 7: 3つのGPT（ツール詳細）
+  ============================================================ -->
+  <section id="s7" class="section-warm">
+    <div class="container">
+      <p class="eyebrow fi">Tools</p>
+      <h2 class="headline fi fi-delay-1"><span class="ub">3つの順番に沿って、</span><br><span class="ub">販売の形を</span><span class="ub">つくっていく。</span></h2>
+
+      <p class="subhead col fi fi-delay-2" style="margin-top:24px;">
+        セットに含まれる3本のGPTは、それぞれが「この順番で使う」ことを前提に設計されています。
+      </p>
+
+      <ul class="gpt-list fi" role="list">
+        <li class="gpt-item" role="listitem">
+          <div class="gpt-num-col">
+            <span class="gpt-num-label">GPT 01</span>
+          </div>
+          <div class="gpt-content">
+            <h3 class="gpt-title">価値発掘・商品設計GPT</h3>
+            <p class="gpt-body">「誰に・何を・どう売るか」に答えると、自分でも気づいていなかった商品の価値が言葉になる。「私の商品って何が売りだろう」が霧の中にある人向け。</p>
+          </div>
+        </li>
+        <li class="gpt-item" role="listitem">
+          <div class="gpt-num-col">
+            <span class="gpt-num-label">GPT 02</span>
+          </div>
+          <div class="gpt-content">
+            <h3 class="gpt-title">ヘッダー・デザイン作成GPT</h3>
+            <p class="gpt-body">最初の一言が決まると、LP全体のトーンと言葉が揃う。ここからページが組み立てやすくなる。「キャッチコピーが決まらなくて止まっている」を解消します。</p>
+          </div>
+        </li>
+        <li class="gpt-item" role="listitem">
+          <div class="gpt-num-col">
+            <span class="gpt-num-label">GPT 03</span>
+          </div>
+          <div class="gpt-content">
+            <h3 class="gpt-title">LP構築GPT</h3>
+            <p class="gpt-body">「何をどこに書くか」の順番があらかじめ決まっている。白紙で止まらずに、最後まで進められる。実装プロンプトまで出力するので、そのままAIに渡して動かせます。</p>
+          </div>
+        </li>
+      </ul>
+
+      <div class="gpt-flow fi" role="img" aria-label="GPT01からGPT02、GPT03、AI実装を経て販売スタートへの流れ">
+        <span class="gpt-flow-node">GPT 01</span>
+        <span class="gpt-flow-sep" aria-hidden="true">→</span>
+        <span class="gpt-flow-node">GPT 02</span>
+        <span class="gpt-flow-sep" aria-hidden="true">→</span>
+        <span class="gpt-flow-node">GPT 03</span>
+        <span class="gpt-flow-sep" aria-hidden="true">→</span>
+        <span class="gpt-flow-node">AI実装</span>
+        <span class="gpt-flow-sep" aria-hidden="true">→</span>
+        <span class="gpt-flow-node is-result">販売スタート</span>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       SECTION 8: オファー・価格
+  ============================================================ -->
+  <section id="s8">
+    <div class="container">
+      <p class="eyebrow fi">Offer</p>
+      <h2 class="headline fi fi-delay-1"><span class="ub">セット内容と価格</span></h2>
+
+      <div class="offer-box fi fi-delay-2">
+        <p class="offer-label">含まれるもの</p>
+        <ul class="offer-items">
+          <li class="offer-item">価値発掘・商品設計GPT</li>
+          <li class="offer-item">ヘッダー・デザイン作成GPT</li>
+          <li class="offer-item">LP構築GPT</li>
+          <li class="offer-item">AI実装プロンプト（Codex / Claude Code 対応）</li>
+          <li class="offer-item">使い方手順書（つまずきやすい箇所を全て先回りして書いたもの）</li>
+        </ul>
+
+        <div class="offer-price-wrap">
+          <p class="offer-price-original">正式リリース価格 49,800円</p>
+          <p class="offer-price">29,800<small>円（税込）</small></p>
+          <p class="offer-price-note">実装テスト価格 — 先着5名まで</p>
+        </div>
+
+        <div class="offer-reason">
+          先着5名は「実装テスト枠」です。購入後の実践データとフィードバックをいただき、GPTの改善に反映させていただきます。5名のデータが集まった段階で、正式リリース価格（49,800円）に移行します。先行購入者のかたは、アップデート版も追加費用なしで受け取れます。
+        </div>
+
+        <p class="offer-meta">
+          買い切り・追加費用なし<br>
+          デジタル商品のため返金はありません<br>
+          内容はこのページに全て書いています
+        </p>
+
+        <div class="offer-cta">
+          <a
+            href="https://line.me/R/oaMessage/%40988woyza/?GPT%E7%94%B3%E3%81%97%E8%BE%BC%E3%81%BF"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="btn"
+          >
+            止まらない商品づくりを始める
+            <svg class="btn-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+          <p class="offer-cta-note">ボタンを押すと、公式LINEが開きます。「GPT申し込み」と送るだけでOKです</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================================================
+       ラストメッセージ
+  ============================================================ -->
+  <section class="last" id="last">
+    <div class="container">
+
+      <div class="last-lead fi">
+        <p>商品は、完成してから売るものではありません。<br>販売しながら、育てていくものです。</p>
+        <p style="margin-top:1.4em;">今日のアイデアを、今日、販売へ進める。<br>その最初の一歩を、この順番から始めてください。</p>
+      </div>
+
+      <span class="last-tagline fi" aria-label="販売は、順番で決まる。">
+        思いついた商品を、<br>その熱量のまま<br>販売まで。
+      </span>
+
+      <div class="last-cta fi">
+        <a
+          href="https://line.me/R/oaMessage/%40988woyza/?GPT%E7%94%B3%E3%81%97%E8%BE%BC%E3%81%BF"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn"
+        >
+          止まらない商品づくりを始める
+          <svg class="btn-arrow" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+        <p class="last-note">
+          先着5名・実装テスト枠 / 29,800円（税込）<br>
+          ボタンを押すと、公式LINEが開きます。「GPT申し込み」と送るだけでOKです
+        </p>
+        <p class="line-consult">迷うことがあれば、<a href="https://lin.ee/XLlY4su" target="_blank" rel="noopener noreferrer">LINEで気軽に聞いてください</a></p>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2026 All rights reserved.</p>
+  </footer>
+
+
+  <!-- フェードイン -->
+  <script>
+    (function () {
+      var observer = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1, rootMargin: '0px 0px -32px 0px' }
+      );
+      document.querySelectorAll('.fi').forEach(function (el) {
+        observer.observe(el);
+      });
+    })();
+  </script>
+
+</body>
+</html>
